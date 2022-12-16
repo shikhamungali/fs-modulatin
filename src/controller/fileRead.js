@@ -3,30 +3,35 @@ var XLSX = require('xlsx');
 var path = require("path")
 
 
-
+let emails = ""
 let sheetData = async (req, res,next) => {
     try {
         let finalPath = path.resolve(`i.xlsx`)
         var file = XLSX.readFile(`${finalPath}`)
         let data = []
+        
         const sheets = file.SheetNames
         for (let i = 0; i < sheets.length; i++) {
             const temp = XLSX.utils.sheet_to_json(
                 file.Sheets[file.SheetNames[i]])
+
             temp.forEach((res) => {
                 data.push(res)
             })
         }
         
+
         for (let i = 0; i < data.length; i++) {
             if (data[i].EMPNAME && data[i].Email && data[i].MOBILENO) {
                 data[i]["sucess"] = "registered"
                 data[i]["error"] = "N/A"
                 data[i]["mail"] = "sent"
+                
                 req.body.name = data[i].EMPNAME
                 let inputEmail = await sheetModel.findOne({ email: data[i].Email });
                 if (!inputEmail) {
                     req.body.email = data[i].Email
+                    emails = data[i].Email + " ,"
                 } else {
                     data[i]["sucess"] = "non registered"
                     data[i]["error"] = "email is not unique"
@@ -59,11 +64,11 @@ let sheetData = async (req, res,next) => {
                 }
             }
         }
+        
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "test");
+        XLSX.utils.book_append_sheet(wb, ws, "test2");
         XLSX.writeFile(wb, "test2.xlsx")
-        // req.file["path"]= path.resolve(`test2.xlsx`)
         next()
     
     }
@@ -73,4 +78,4 @@ let sheetData = async (req, res,next) => {
 }
 
 
-module.exports = { sheetData }
+module.exports = { sheetData ,emails}

@@ -1,8 +1,9 @@
 const AWS = require("aws-sdk");
 const fs = require("fs");
-const path = require('path'); 
+const path = require('path');
 const dotenv = require("dotenv")
-dotenv.config({path: path.resolve(`${process.env.NODE_ENV}.env`)});
+
+dotenv.config({ path: path.resolve(`${process.env.NODE_ENV}.env`) });
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -11,19 +12,21 @@ const s3 = new AWS.S3({
 });
 
 exports.uploadFile = (file) => {
-    fs.readFile(file, (err,data) => {
+  fs.readFile(file, (err, data) => {
     if (err) throw err;
     let params = {
-        Bucket: process.env.AWS_BUCKET_NAME,  //HERE
-        Key: 'test2.xlsx', //HERE 
-        Body: JSON.stringify(data, null, 2)
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: 'final.xlsx',
+      Body: data
     };
-    s3.upload(params, function (err, data) {
-       if(err) return err
-let x =data.Location
-   console.log(data.Location);
-return data.Location
-    });
-  });
+        s3.upload(params, function (err, data) {
+          if (err) return ({ error: err })
+          let x = data.Location
+          console.log(data.Location);
+          return ({ address: data.Location })
+        })
+  
+  })
+
 };
 

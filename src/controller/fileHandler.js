@@ -3,21 +3,26 @@ const sendMail = require("../email/mailService");
 
 const {uploadFile} =require('../aws/s3')
 const Admintemplate = require("../email/Admintemplate");
-const link = require("../models/link");
+var path = require("path")
+let finalPath = path.resolve(`test2.xlsx`)
+const {emails} = require("../controller/fileRead")
 
 require("dotenv").config();
 
 exports.uploadHandler = async (req, res) => {
   try {
- uploadFile("test2.xlsx")
+ uploadFile(`${finalPath}`)
+
+
+
  sendMail({
     from: 'shikha1081998@gmail.com',
-    to: 'shikha1081998@gmail.com',
+    to: `${emails} , shikha1081998@gmail.com ` ,
     subject: 'EazyShare file sharing',
-    text: `${'rvsharma2652@gmail.com'} shared a file with you.`,
+    text: `${'shikha1081998@gmail.com'} shared a file with you.`,
     html: Admintemplate({
               emailFrom:'shikha1081998@gmail.com', 
-              downloadLink: `${link}` ,
+              downloadLink: `https://blogapi.s3.us-west-2.amazonaws.com/final.xlsx` ,
               size: parseInt(1000) + ' KB',
               expires: '24 hours'
           })
@@ -36,3 +41,4 @@ exports.uploadHandler = async (req, res) => {
     return res.status(500).json({ error: error });
   }
 };
+
